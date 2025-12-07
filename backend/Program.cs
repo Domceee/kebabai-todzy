@@ -128,6 +128,50 @@ app.MapPost("/api/auth/login", async (LoginRequest request, AppDbContext db) =>
     return Results.Ok(response);
 });
 
+
+
+app.MapPut("/api/users/edit", async (EditUserRequest request, AppDbContext db) =>
+{
+    var user = await db.Users.FindAsync(request.Id);
+
+    if (user is null)
+    {
+        return Results.NotFound(new { errors = new[] { "Naudotojas nerastas." } });
+    }
+
+    // Validacija (paprasta, vėliau galim praplėsti)
+    if (string.IsNullOrWhiteSpace(request.FirstName) ||
+        string.IsNullOrWhiteSpace(request.LastName) ||
+        string.IsNullOrWhiteSpace(request.Email))
+    {
+        return Results.BadRequest(new { errors = new[] { "Visi privalomi laukai turi būti užpildyti." } });
+    }
+
+    // Atnaujinam duomenis
+    user.FirstName = request.FirstName.Trim();
+    user.LastName = request.LastName.Trim();
+    user.Email = request.Email.Trim().ToLowerInvariant();
+    user.PhoneNumber = request.PhoneNumber?.Trim();
+    user.Address = request.Address?.Trim();
+
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new
+    {
+        message = "Paskyra sėkmingai atnaujinta!",
+        user = new
+        {
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            user.PhoneNumber,
+            user.Address,
+            user.Role
+        }
+    });
+});
+
 // Root
 app.MapGet("/", () => Results.Redirect("/api/hello"));
 
