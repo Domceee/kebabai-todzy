@@ -1,7 +1,11 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 
 export default function PaskyrosLangas() {
+
+   const router = useRouter() 
+   
   const [user, setUser] = useState(null)
   const [editable, setEditable] = useState(false)
   const [formValues, setFormValues] = useState({
@@ -190,10 +194,23 @@ const handleEditToggle = async () => {
         </button>
       </div>
 
-      <h2 style={{ marginTop: 30 }}>Navigacija</h2>
+  <button 
+    onClick={() => router.push('/paskyros-salinimo-langas')}
+    style={{ 
+      background: '#e74c3c', 
+      color: '#fff',
+      padding: "6px 12px",
+      borderRadius: 8,
+      border: 'none',
+      cursor: 'pointer' 
+    }}
+  >
+    Paskyros šalinimo langas
+  </button>
+
+
       <ul>
         <li><Link href="/nuolaidos-kodo-generavimo-langas">Nuolaidos kodo generavimo langas</Link></li>
-        <li><Link href="/paskyros-salinimo-langas">Paskyros šalinimo langas</Link></li>
         <li><Link href="/slaptazodzio-keitimo-langas">Slaptažodžio keitimo langas</Link></li>
       </ul>
 

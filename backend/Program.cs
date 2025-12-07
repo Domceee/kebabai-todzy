@@ -172,7 +172,31 @@ app.MapPut("/api/users/edit", async (EditUserRequest request, AppDbContext db) =
     });
 });
 
-// Root
+app.MapPost("/api/users/delete", async (LoginRequest request, AppDbContext db) =>
+{
+    var emailNorm = request.Email.Trim().ToLowerInvariant();
+
+    var user = await db.Users.FirstOrDefaultAsync(u => u.Email.ToLower() == emailNorm);
+
+    if (user is null)
+    {
+        return Results.BadRequest(new { errors = new[] { "Naudotojas nerastas." } });
+    }
+
+    bool validPassword = PasswordHelper.VerifyPassword(request.Password, user.PasswordHash);
+
+    if (!validPassword)
+    {
+        return Results.BadRequest(new { errors = new[] { "Neteisingas slaptažodis." } });
+    }
+
+    db.Users.Remove(user);
+    await db.SaveChangesAsync();
+
+    return Results.Ok(new { message = "Paskyra sėkmingai ištrinta." });
+});
+
+
 app.MapGet("/", () => Results.Redirect("/api/hello"));
 
 app.Run();
